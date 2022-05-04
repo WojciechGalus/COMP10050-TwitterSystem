@@ -12,12 +12,15 @@ void main(void) {
     printf("Greetings GAMER!111!! How many users do you want?\n");
     scanf("%d", &userbase);
     user userList[userbase];
+    tweet newsFeed[MAX_TWEETS];
+    int tweetNum=0;
+
     char PoI[USERNAME_LENGTH];
     char CoI[USERNAME_LENGTH];
 
     fgetsDebug();
     for(int i=0;i<userbase;i++) {
-        printf("\nCreate a user...\n");
+        printf("Create a user...\n");
         fgets(userList[i].username,USERNAME_LENGTH, stdin);
         userList[i].userid=i+1;
         userList[i].followingNum=0;
@@ -40,13 +43,28 @@ void main(void) {
 
         if(input==1){
             printf("you post");
+            //typedef struct tweet{
+            //    int id;
+            //    char msg[TWEET_LENGTH];
+            //    struct twitter_user usr;
+            //}tweet;
+
+            printf("\nWhat's on your mind?\n(Press 'Enter' now if you wish to go back)\n\n",userList[k].username);
+            fgetsDebug();
+            fgets(newsFeed[tweetNum].msg,TWEET_LENGTH,stdin);
+            if(strcmp(newsFeed[tweetNum].msg,"\n")!=0) {
+                newsFeed[tweetNum].usr = userList[k];
+                newsFeed[tweetNum].id = tweetNum;
+                tweetNum++;
+            }
 
         }
         if(input==2){
             printf("news feed");
+            printNewsFeed(userList[k], newsFeed, tweetNum);
         }
 
-        //----------------------------------------------------------------------------------------
+
 
         if(input==3){
 
@@ -103,7 +121,7 @@ void main(void) {
             printf("\n essa");
         }
 
-        //------------------------------------------------------------------------------------------
+
         int unfollow;
         if(input==4){
             printf("unfollow\n");

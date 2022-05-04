@@ -7,6 +7,7 @@
 #define TWEET_LENGTH 280
 #define USERNAME_LENGTH 20
 #define MAX_FOLLOW 30
+#define MAX_TWEETS 10
 
 
 
@@ -35,8 +36,6 @@ typedef struct twitter_system{
 
 void create_twitter_system(twitter * twitter_system);
 
-void printFollowable(user followerList);
-
 void fgetsDebug();
 
-void quickSort(char arr[][USERNAME_LENGTH], int left, int right);
+void printNewsFeed(user, tweet newsFeed[],int tweetNum);
