@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "twitter_create.h"
 #include <string.h>
+//to do: unfollow function, follow function, delete user function(?)
 
 void main(void) {
 
@@ -43,11 +44,6 @@ void main(void) {
 
         if(input==1){
             printf("you post");
-            //typedef struct tweet{
-            //    int id;
-            //    char msg[TWEET_LENGTH];
-            //    struct twitter_user usr;
-            //}tweet;
 
             printf("\nWhat's on your mind?\n(Press 'Enter' now if you wish to go back)\n\n",userList[k].username);
             fgetsDebug();
@@ -59,6 +55,7 @@ void main(void) {
             }
 
         }
+
         if(input==2){
             printf("news feed");
             printNewsFeed(userList[k], newsFeed, tweetNum);
@@ -73,14 +70,13 @@ void main(void) {
                 for(int i=0;i<userbase;i++){
                     check=0;
                         for (int j = 0; j < currentUser->followingNum; j++) {
-                            compret = strcmp(userList[i].username, userList[k].followingList[j]);
                             //check++ if strcmp==0
                             //let j increment if not
-                            if(compret==0){
+                            if(strcmp(userList[i].username, userList[k].followingList[j])==0){
                                 check=1;
                             }
                         }
-                        if ((userList[i].userid != currentUser->userid) && (check==0)) {
+                        if ((userList[i].userid != currentUser->userid) && (check==0) && (strcmp("\t",userList[i].username)!=0)) {
                                     printf("  %d       %s", userList[i].userid, userList[i].username);
                         }
                 }
@@ -151,8 +147,6 @@ void main(void) {
                             //account "i" gets overwritten by last account in list and list size is reduced by 1
                             strcpy(userList[k].followingList[i], userList[k].followingList[userList[k].followingNum]);
                             userList[k].followingNum--;
-                            //int unfollowCheck=userList[unfollow].followerNum;
-                            //userList[1].followerNum--;
                             printf("\nunfollowed user:%s   %d   %d", userList[k].followingList[i], userList[i].followerNum,
                                    userList[i].followingNum);
 
@@ -173,23 +167,6 @@ void main(void) {
                                     }
                                 }
                             }
-
-
-
-
-                            //user "i" is unfollowed by user "k"
-                            //unfollowCheck=userList[unfollow].followerNum;
-                            //find account "k" in account "i" followerList
-                            //for(int m=0;m < unfollowCheck;m++){
-                                //compret = strcmp(CoI, userList[unfollow].followerList[m]);
-                                //userList[1].followerNum--;
-                                //if(compret==0){
-                                    //account "k" gets overwritten by last account in list and list size reduced by 1
-                                    //strcpy(userList[unfollow].followerList[m], userList[unfollow].followerList[userList[unfollow].followerNum]);
-                                    //printf("\n hello %s",userList[unfollow].username);
-                                    //m=MAX_FOLLOW;
-                                //}
-                            //}
                             i = userbase;
                             check = 1;
                         }
@@ -200,11 +177,84 @@ void main(void) {
                 }
             }
             skip=0;
-
         }
 
         if(input==5){
-            printf("delete account");
+            printf("delete account\n");
+            char deleteUser[USERNAME_LENGTH];
+            fgetsDebug();
+            printf("Are you sure you wish to delete the account:\n%sEnter your username to confirm or press 'Enter' to skip.\n",userList[k].username);
+            fgets(deleteUser,USERNAME_LENGTH,stdin);
+            if(strcmp(deleteUser,userList[k].username)==0){
+                printf("\nuser deleted");
+
+                //erase tweets from newsfeed
+                for (int i = 0; i < tweetNum; ++i) {          //go through all tweets
+                    //if posted by user to be deleted
+                    if(strcmp(deleteUser,newsFeed[i].usr.username)==0){
+                        //erase message
+                        strcpy(newsFeed[i].msg,"\n");
+                    }
+                }
+
+                //userbase loses deleted user as a follower
+                if(userList[k].followingNum>0){
+                    for(int m=0;m<userbase;m++){
+                        for(int h=0;h<userList[m].followerNum;h++) {
+                            compunf = strcmp(deleteUser, userList[m].followerList[h]);
+                            if(compunf == 0) {
+                            //account "k" gets overwritten by last account in list and list size reduced by 1
+                                strcpy(userList[m].followerList[h],
+                                   userList[m].followerList[userList[m].followerNum]);
+                                userList[m].followerNum--;
+                                printf("\n hello", userList[unfollow].username);
+                                h = userList[m].followerNum+1;
+                                }
+                            }
+                    }
+                }
+                if(userList[k].followerNum>0) {
+                    //look through userbase
+                    for (int m = 0; m < userbase; m++) {
+                        //search through each user's list of accounts they follow
+                        for(int i=0;i<userList[m].followingNum;i++){
+                            //if they follow the deleted user
+                            if(strcmp(deleteUser,userList[m].followingList[i])==0){
+                                //overwrite deleted user in list of following accounts with the last account followed
+                                strcpy(userList[m].followingList[i],
+                                       userList[m].followingList[userList[m].followingNum]);
+                                //user[m] follows 1 less account
+                                userList[m].followingNum--;
+                                i=userList[m].followingNum+1;
+                            }
+                        }
+                    }
+                }
+
+                while(userList[k].followerNum != 0){
+                    strcpy(userList[k].followerList[userList[k].followerNum], "\t");
+                    userList[k].followerNum--;
+                }
+
+                //deleted account loses its list of accounts being followed
+                while(userList[k].followingNum !=0) {    //go through list of accounts being followed
+                    strcpy(userList[k].followingList[userList[k].followingNum], "\t");
+                    userList[k].followingNum--;
+                }
+
+
+                //deleted account's username erased
+                strcpy(userList[k].username,"\t");
+
+                printf("\n Account terminated.");
+                k++;
+
+
+            }
+            else{
+                printf("\nAccount NOT terminated.");
+            }
+
         }
         if(input==6){
             printf("next user");
