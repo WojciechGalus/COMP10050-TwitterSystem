@@ -1,0 +1,3 @@
+C:/Users/wojte/CLionProjects/WojciechGalus_19462882_TwitterSystem/cmake-build-debug/CMakeFiles/WojciechGalus_19462882_TwitterSystem.dir
+C:/Users/wojte/CLionProjects/WojciechGalus_19462882_TwitterSystem/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/wojte/CLionProjects/WojciechGalus_19462882_TwitterSystem/cmake-build-debug/CMakeFiles/rebuild_cache.dir
