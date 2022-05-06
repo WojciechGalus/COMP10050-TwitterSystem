@@ -1,195 +1,178 @@
+//Twitter System - Wojciech Galus
+//19462882
+//wojciech.galus@ucdconnect.ie
+
 #include <stdio.h>
 #include "twitter_create.h"
 #include <string.h>
-//to do: unfollow function, follow function, delete user function(?)
+
 
 void main(void) {
+    //VARIABLES
+    int userbase;                           //number of users
+    int compReturn, compFollower;           //stores strcmp() results
+    int skip;                               //changes to 1 when user wishes to stop while loop
+    int check;                              //changes to 1 when username entered by user was found
+    int k = 0;                              //iterates over userbase so each user gets a turn
+    int input=0;                            //user's input starts each function
 
+    //will store usernames entered by current player
+    char deleteUser[USERNAME_LENGTH];
+    char followUsername[USERNAME_LENGTH];
+    char unfollowUsername[USERNAME_LENGTH];
 
-
-    int userbase;
-    int compret,check, compunf;
-    int skip=0;
-    printf("Greetings GAMER!111!! How many users do you want?\n");
+    //CREATE USERS
+    printf("How many users do you wish to create?\n");
     scanf("%d", &userbase);
-    user userList[userbase];
-    tweet newsFeed[MAX_TWEETS];
+    user userList[userbase];                    //array of users created
+    tweet newsFeed[MAX_TWEETS];                 //array of tweets created
     int tweetNum=0;
 
-    char PoI[USERNAME_LENGTH];
-    char CoI[USERNAME_LENGTH];
-
-    fgetsDebug();
-    for(int i=0;i<userbase;i++) {
-        printf("Create a user...\n");
-        fgets(userList[i].username,USERNAME_LENGTH, stdin);
-        userList[i].userid=i+1;
-        userList[i].followingNum=0;
+    fgetsDebug();                               //fgets did not wait for user input if most recent char was "\n"
+    for(int i=0;i<userbase;i++) {               //create as many users as inputted on Line 22
+        printf("Enter a username\n");
+        fgets(userList[i].username,USERNAME_LENGTH, stdin); //get username
+        userList[i].userid=i+1;                 //userid assigned
+        userList[i].followingNum=0;             //all users start with 0 followers and follow 0 accounts themselves
         userList[i].followerNum=0;
     }
-    printf("\nUsers Created :^D");
+    printf("\nUser creation finished.\n");
 
-    int k = 0;
-    int input=0;
+    //TWITTER SYSTEM
     while(k<userbase){
         user * currentUser = &userList[k];
-        printf("\nCurrently logged in as:\n@%s\nFollowers:%d\nFollowing:%d\n",userList[k].username, userList[k].followerNum, userList[k].followingNum);
+        //show user's account info and ask what he/she wants to do
+        printf("\nCurrently logged in as:\t%sFollowers:%d\nFollowing:%d",userList[k].username, userList[k].followerNum, userList[k].followingNum);
         printf("\n\nPlease select one of the following options:\n"
-               "|Post Tweet (1)|    |News Feed (2)|\t|Follow (3)|\t|Unfollow (4)|\n|Delete Account (5)|    |End Session (6)|     |Exit to Desktop (7)|\n");
-        scanf("%d",&input);
-        if((input<1) || (input>7)){
+               "|Post Tweet (1)|    |News Feed (2)|\t|Follow (3)|\t|Unfollow (4)|\n|Delete Account (5)|    |End Turn (6)|     |Exit System (7)|\n");
+        scanf("%d",&input);     //read/store user input
+
+        if((input<1) || (input>7)){     //invalid input
             printf("Incorrect operation, process terminating\n");
             input=7;
         }
 
+        //POST TWEET
         if(input==1){
-            printf("you post");
-
             printf("\nWhat's on your mind?\n(Press 'Enter' now if you wish to go back)\n\n",userList[k].username);
             fgetsDebug();
-            fgets(newsFeed[tweetNum].msg,TWEET_LENGTH,stdin);
-            if(strcmp(newsFeed[tweetNum].msg,"\n")!=0) {
-                newsFeed[tweetNum].usr = userList[k];
-                newsFeed[tweetNum].id = tweetNum;
-                tweetNum++;
+            fgets(newsFeed[tweetNum].msg,TWEET_LENGTH,stdin);   //get string and store in most recent newsfeed position
+            if(strcmp(newsFeed[tweetNum].msg,"\n")!=0) {        //if user does not wish to skip
+                newsFeed[tweetNum].usr = userList[k];           //tweet author is currently playing user
+                tweetNum++;                                     //number of tweets increased
+            }
+        }
+
+        //PRINT NEWSFEED
+        if(input==2){
+            printNewsFeed(userList[k], newsFeed, tweetNum);     //function prints news feed
+        }
+
+        //FOLLOW
+        if(input==3){
+            printf("\nList of users that can be followed:\n");
+            //search through userbase
+            for(int i=0;i<userbase;i++){
+                check=0;                        //if check!=0, username 'i' will not print
+
+                //search through current user's list of accounts being followed
+                for (int j = 0; j < currentUser->followingNum; j++) {
+                    if(strcmp(userList[i].username, userList[k].followingList[j])==0){
+                        check=1;                //if user 'i' is in current user's following list, do NOT print
+                    }
+                }
+
+                //print user 'i' username if: it does not belong to current user, account is followable, user was deleted
+                if ((userList[i].userid != currentUser->userid) && (check==0) && (strcmp("\t",userList[i].username)!=0)) {
+                    printf("%s", userList[i].username);
+                }
             }
 
-        }
-
-        if(input==2){
-            printf("news feed");
-            printNewsFeed(userList[k], newsFeed, tweetNum);
-        }
-
-
-
-        if(input==3){
-
-            printf("follow\n");
-            printf("\nList of users that can be followed:\nUser ID | Username\n");
-                for(int i=0;i<userbase;i++){
-                    check=0;
-                        for (int j = 0; j < currentUser->followingNum; j++) {
-                            //check++ if strcmp==0
-                            //let j increment if not
-                            if(strcmp(userList[i].username, userList[k].followingList[j])==0){
-                                check=1;
-                            }
-                        }
-                        if ((userList[i].userid != currentUser->userid) && (check==0) && (strcmp("\t",userList[i].username)!=0)) {
-                                    printf("  %d       %s", userList[i].userid, userList[i].username);
-                        }
-                }
             fgetsDebug();
-            while(skip==0) {
-
+            skip=0;
+            while(skip==0) {    //User can follow accounts until he/she chooses to skip
                 printf("\nInput the username of the account you wish to follow or press 'Enter' to skip:\n");
-                fgets(PoI,USERNAME_LENGTH,stdin);
-                if (strcmp(PoI, "\n") ==0 ){
+                fgets(followUsername,USERNAME_LENGTH,stdin);      //store input in followUsername
+                if (strcmp(followUsername, "\n") ==0 ){                             //check if user wants to skip
                     skip=1;
                 }
                 else {
-                    check = 0;
+                    check = 0;         //if check == 0 after search, entered username was not found in userbase
+                    //find user in userbase with strcmp
                     for (int i = 0; i < userbase; i++) {
-                        //find user in userbase with strcmp
-                        compret = strcmp(PoI, userList[i].username);
-                        if (compret == 0) {
-                            //user "k" follows user "i"
+                        compReturn = strcmp(followUsername, userList[i].username);  //strcmp returns int
+                        if (compReturn == 0) {                                      //if user 'i' username is the same as inputted by user
+                            //current user follows user "i"
                             strcpy(userList[k].followingList[userList[k].followingNum], userList[i].username);
                             userList[k].followingNum++;
                             //user "i" is followed by user "k"
                             strcpy(userList[i].followerList[userList[i].followerNum], userList[k].username);
                             userList[i].followerNum++;
-                            printf("\nfollowed user:\n%s\n%d   %d", userList[i].username, userList[i].followerNum,
-                                   userList[i].followingNum);
-                            i = userbase;
-                            check = 1;
+                            i = userbase;   //user found, for loop can stop
+                            check = 1;      //entered username was found
                         }
                     }
-                    if (check == 0) {
+                    if (check == 0) {       //if entered username was not found
                         perror("\nEntered username could not be found");
-                    }
-                }
+                    }}}}//end of follow segment
 
-            }
-            skip=0;
-
-            printf("\n essa");
-        }
-
-
-        int unfollow;
+        //UNFOLLOW
         if(input==4){
-            printf("unfollow\n");
             printf("\nList of users that can be unfollowed:\n");
+            //search through current user's list of account followed
             for(int i=0;i<currentUser->followingNum;i++){
                 printf("%s",userList[k].followingList[i]);
             }
             fgetsDebug();
-            while(skip==0) {
-
+            skip=0;
+            while(skip==0) {    //repeat until user skips
                 printf("\nInput the username of the account you wish to unfollow or press 'Enter' to skip:\n");
-                fgets(CoI, USERNAME_LENGTH, stdin);
-                if (strcmp(CoI, "\n") ==0 ){
-                    skip=1;
+                fgets(unfollowUsername, USERNAME_LENGTH, stdin);
+                if (strcmp(unfollowUsername, "\n") ==0 ){
+                    skip=1;     //if only 'Enter' was pressed, skip
                 }
                 else{
-                    check = 0;
+                    check = 0;  //if check==1, entered username was found in followingList and was unfollowed
                     for (int i = 0; i < userList[k].followingNum; i++) {
                         //find user in userbase with strcmp
-                        compret = strcmp(CoI, userList[k].followingList[i]);
-                        if (compret == 0) {
-                            unfollow=i;
-
-                            printf("\nunfollowed user:%s   %d   %d", userList[k].followingList[i], userList[i].followerNum,
-                                   userList[i].followingNum);
-                            //user "k" unfollows account "i" in followingList
-                            //account "i" gets overwritten by last account in list and list size is reduced by 1
+                        compReturn = strcmp(unfollowUsername, userList[k].followingList[i]);
+                        //user found
+                        if (compReturn == 0) {
+                            //current user unfollows account "i" in followingList
+                            //account "i" gets overwritten by last account in list and followingNum is reduced by 1
                             strcpy(userList[k].followingList[i], userList[k].followingList[userList[k].followingNum]);
                             userList[k].followingNum--;
-                            printf("\nunfollowed user:%s   %d   %d", userList[k].followingList[i], userList[i].followerNum,
-                                   userList[i].followingNum);
-
-                            int m;
-                            for(m=0;m<userbase;m++){
-                                compret = strcmp(CoI, userList[m].username);
-                                if(compret==0){     //user[m] is account to be unfollowed, look through user[m] follower list and find user[k]
+                            //search through userbase and find user being unfollowed
+                            for(int m=0;m<userbase;m++){
+                                compReturn = strcmp(unfollowUsername, userList[m].username);
+                                if(compReturn==0){     //user[m] is account to be unfollowed
+                                    //look through user[m] follower list and find current user
                                     for(int h=0;h<userList[m].followerNum;h++) {
-                                        compunf = strcmp(userList[k].username, userList[m].followerList[h]);
-                                        if(compunf == 0) {
+                                        compFollower = strcmp(userList[k].username, userList[m].followerList[h]);
+                                        if(compFollower == 0) {
                                             //account "k" gets overwritten by last account in list and list size reduced by 1
                                             strcpy(userList[m].followerList[h],
                                                    userList[m].followerList[userList[m].followerNum]);
                                             userList[m].followerNum--;
-                                            printf("\n hello %s", userList[unfollow].username);
-                                            m = userbase;
-                                        }
-                                    }
-                                }
-                            }
-                            i = userbase;
-                            check = 1;
-                        }
-                    }
+                                            m = userbase;   //if account[m] no longer has current user as follower, finish search
+                                        }}}}
+                            i = userbase;   //finish searching userbase if unfollowUsername exists in current user's followingList
+                            check = 1;      //username entered was found
+                        }}
                     if (check == 0) {
                         perror("\nEntered username could not be found");
-                    }
-                }
-            }
-            skip=0;
-        }
+                    }}}}//end of unfollow segment
 
+        //DELETE ACCOUNT
         if(input==5){
-            printf("delete account\n");
-            char deleteUser[USERNAME_LENGTH];
             fgetsDebug();
             printf("Are you sure you wish to delete the account:\n%sEnter your username to confirm or press 'Enter' to skip.\n",userList[k].username);
             fgets(deleteUser,USERNAME_LENGTH,stdin);
+            //username entered is compared to current user's username
             if(strcmp(deleteUser,userList[k].username)==0){
-                printf("\nuser deleted");
-
                 //erase tweets from newsfeed
-                for (int i = 0; i < tweetNum; ++i) {          //go through all tweets
+                //go through all tweets
+                for (int i = 0; i < tweetNum; ++i) {
                     //if posted by user to be deleted
                     if(strcmp(deleteUser,newsFeed[i].usr.username)==0){
                         //erase message
@@ -197,22 +180,23 @@ void main(void) {
                     }
                 }
 
-                //userbase loses deleted user as a follower
+                //userbase loses deleted user as a follower, if user follows anyone
                 if(userList[k].followingNum>0){
+                    //search through userbase
                     for(int m=0;m<userbase;m++){
+                        //search through every user's follower list
                         for(int h=0;h<userList[m].followerNum;h++) {
-                            compunf = strcmp(deleteUser, userList[m].followerList[h]);
-                            if(compunf == 0) {
-                            //account "k" gets overwritten by last account in list and list size reduced by 1
+                            compFollower = strcmp(deleteUser, userList[m].followerList[h]);
+                            //if user being deleted is in user[m] follower list
+                            if(compFollower == 0) {
+                            //current user gets overwritten by last account in follower list and follower number reduced by 1
                                 strcpy(userList[m].followerList[h],
                                    userList[m].followerList[userList[m].followerNum]);
                                 userList[m].followerNum--;
-                                printf("\n hello", userList[unfollow].username);
-                                h = userList[m].followerNum+1;
+                                h = userList[m].followerNum+1;  //stop searching through user[m] follower list once current user is found
                                 }
-                            }
-                    }
-                }
+                            }}}
+                //userbase stops following deleted user, if user has any followers
                 if(userList[k].followerNum>0) {
                     //look through userbase
                     for (int m = 0; m < userbase; m++) {
@@ -223,46 +207,37 @@ void main(void) {
                                 //overwrite deleted user in list of following accounts with the last account followed
                                 strcpy(userList[m].followingList[i],
                                        userList[m].followingList[userList[m].followingNum]);
-                                //user[m] follows 1 less account
+                                //reduce number of user[m] following accounts by 1
                                 userList[m].followingNum--;
-                                i=userList[m].followingNum+1;
-                            }
-                        }
-                    }
-                }
+                                i=userList[m].followingNum+1;   //stop searching through user[m] following list once current user is found
+                            }}}}
 
-                while(userList[k].followerNum != 0){
-                    strcpy(userList[k].followerList[userList[k].followerNum], "\t");
-                    userList[k].followerNum--;
-                }
+                unfollowAll(userList[k]);   //accounts in deleted user's followingList erased
 
-                //deleted account loses its list of accounts being followed
-                while(userList[k].followingNum !=0) {    //go through list of accounts being followed
-                    strcpy(userList[k].followingList[userList[k].followingNum], "\t");
-                    userList[k].followingNum--;
-                }
-
+                loseFollowers(userList[k]); //accounts in deleted user's followerList erased
 
                 //deleted account's username erased
                 strcpy(userList[k].username,"\t");
-
                 printf("\n Account terminated.");
-                k++;
-
-
+                k++;    //next user's turn to "play"
             }
+            //if entered username does not match current user's name
             else{
                 printf("\nAccount NOT terminated.");
             }
 
         }
+
+        //NEXT USER
         if(input==6){
-            printf("next user");
-            k++;
+            printf("\n\nNext user's turn");
+            k++;    //position in user list incremented
         }
+
+        //EXIT TWITTER SYSTEM
         if(input==7){
-            printf("exit");
-            break;
+            printf("\n\nExiting");
+            break;                          //end program
         }
     }
 }

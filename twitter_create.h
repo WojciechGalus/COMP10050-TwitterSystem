@@ -13,20 +13,16 @@
 
 typedef struct twitter_user{
     char username[USERNAME_LENGTH];
-
     char followerList[MAX_FOLLOW][USERNAME_LENGTH];
     int followerNum;
-
     char followingList[MAX_FOLLOW][USERNAME_LENGTH];
     int followingNum;
-
-    int userid;
+    int userid;         //when printing accounts that are followable, current user and followable userID cannot match
 }user;
 
 typedef struct tweet{
-    int id;
     char msg[TWEET_LENGTH];
-    struct twitter_user usr;
+    struct twitter_user usr;    //author of tweet is a struct user
 }tweet;
 
 typedef struct twitter_system{
@@ -34,8 +30,12 @@ typedef struct twitter_system{
     struct twitter_user user;
 }twitter;
 
-void create_twitter_system(twitter * twitter_system);
+void create_twitter_system(twitter * twitter_system);   //function never used
 
-void fgetsDebug();
+void fgetsDebug();         //function to fgets the leftover "\n" from printf statements that would cause fgets to not wait for user input
 
-void printNewsFeed(user, tweet newsFeed[],int tweetNum);
+void printNewsFeed(user, tweet newsFeed[],int tweetNum);    //function display News Feed
+
+void unfollowAll(user);     //user following list is erased
+
+void loseFollowers(user);   //user follower list is erased
